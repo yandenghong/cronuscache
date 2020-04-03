@@ -4,9 +4,9 @@ import "container/list"
 
 type Cache struct {
 	maxBytes int64
-	nBytes int64
-	ll *list.List
-	cache map[string]*list.Element
+	nBytes   int64
+	ll       *list.List
+	cache    map[string]*list.Element
 	// an optional callback method when an entry is removed
 	OnRemoved func(key string, value Value)
 }
@@ -39,7 +39,7 @@ func (c *Cache) Get(key string) (value Value, ok bool) {
 }
 
 func (c *Cache) Remove() {
-	if item := c.ll.Back();item != nil {
+	if item := c.ll.Back(); item != nil {
 		c.ll.Remove(item)
 		kv := item.Value.(*entry)
 		delete(c.cache, kv.key)
@@ -57,7 +57,7 @@ func (c *Cache) Add(key string, value Value) {
 		kv := item.Value.(*entry)
 		c.nBytes += int64(value.Len()) - int64(kv.value.Len())
 		kv.value = value
-	}else{ // add
+	} else { // add
 		item := c.ll.PushFront(&entry{key, value})
 		c.cache[key] = item
 		c.nBytes += int64(len(key)) + int64(value.Len())

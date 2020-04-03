@@ -53,4 +53,3 @@ func TestOnRemoved(t *testing.T) {
 		t.Fatalf("Call OnRemoved failed, expect keys equals to %s", expect)
 	}
 }
-

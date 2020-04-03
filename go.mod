@@ -1,3 +1,3 @@
-module CronusCache
+module cronuscache
 
 go 1.12
