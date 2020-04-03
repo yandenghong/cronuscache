@@ -1,3 +1,3 @@
-CronusCache
+cronuscache
 ===========
-A distributed key-value cache
+A distributed key-value cache in memory.
