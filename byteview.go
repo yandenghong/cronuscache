@@ -21,4 +21,3 @@ func (v ByteView) ByteSlice() []byte {
 func (v ByteView) String() string {
 	return string(v.b)
 }
-
