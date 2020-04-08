@@ -1,10 +1,10 @@
 package core
 
 import (
-	"testing"
-	"reflect"
-	"log"
 	"fmt"
+	"log"
+	"reflect"
+	"testing"
 )
 
 func TestGetter(t *testing.T) {

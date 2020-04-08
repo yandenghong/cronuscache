@@ -1,25 +1,26 @@
 package core
 
 import (
-	"fmt"
-	"log"
-	"sync"
-	"net/http"
-	"strings"
-	"io/ioutil"
-	"net/url"
 	"cronuscache/core/consistenthash"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"strings"
+	"sync"
 )
 
 const (
 	defaultBasePath = "/_cronuscache/"
 	defaultReplicas = 50
 )
+
 // HTTPPool implements NodeSelector for a pool of HTTP nodes.
 type HTTPPool struct {
 	// this node's base URL, e.g. "https://example.net:8000"
-	self     string
-	basePath string
+	self        string
+	basePath    string
 	mu          sync.Mutex // guards nodes and httpGetters
 	nodes       *consistenthash.Map
 	httpGetters map[string]*httpGetter // keyed by e.g. "http://10.0.0.1:8888"

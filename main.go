@@ -1,11 +1,11 @@
 package main
 
 import (
+	"cronuscache/core"
+	"flag"
 	"fmt"
 	"log"
-	"flag"
 	"net/http"
-	"cronuscache/core"
 )
 
 var db = map[string]string{
@@ -25,7 +25,7 @@ func createGroup() *core.Group {
 		}))
 }
 
-// startCacheServer start the cache server, create HTTPPool, 
+// startCacheServer start the cache server, create HTTPPool,
 // add node information, register with groups, and start the HTTP service (3 ports, 8309/8310/8311)
 func startCacheServer(addr string, addrs []string, g *core.Group) {
 	nodes := core.NewHTTPPool(addr)

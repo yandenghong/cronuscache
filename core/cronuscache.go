@@ -1,18 +1,18 @@
 package core
 
 import (
-	"log"
 	"fmt"
+	"log"
 	"sync"
 )
 
 type Getter interface {
-	Get(key string) ([]byte,error)
+	Get(key string) ([]byte, error)
 }
 
-type GetterFunc func(key string) ([]byte,error)
+type GetterFunc func(key string) ([]byte, error)
 
-func (f GetterFunc) Get(key string) ([]byte,error) {
+func (f GetterFunc) Get(key string) ([]byte, error) {
 	return f(key)
 }
 

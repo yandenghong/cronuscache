@@ -13,8 +13,8 @@ type Hash func(data []byte) uint32
 type Map struct {
 	hash     Hash
 	replicas int
-	keys     []int // Sorted
-	hashMap  map[int]string  // hash of virtual node : name of real node
+	keys     []int          // Sorted
+	hashMap  map[int]string // hash of virtual node : name of real node
 }
 
 // New creates a Map instance
@@ -43,14 +43,14 @@ func (m *Map) Add(keys ...string) {
 	sort.Ints(m.keys)
 }
 
-func (m *Map) Get(key string) string{
+func (m *Map) Get(key string) string {
 	if len(m.keys) == 0 {
 		return ""
 	}
 
 	hash := int(m.hash([]byte(key)))
 	// Binary search for appropriate replica.
-	idx := sort.Search(len(m.keys), func(i int) bool {return m.keys[i] >= hash})
+	idx := sort.Search(len(m.keys), func(i int) bool { return m.keys[i] >= hash })
 	// `idx%len(m.keys)`: m.keys is a circular structure, so used mod.
 	return m.hashMap[m.keys[idx%len(m.keys)]]
 }
