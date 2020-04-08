@@ -1,4 +1,4 @@
-package cronuscache
+package src
 
 import (
 	"testing"
@@ -26,7 +26,7 @@ var db = map[string]string{
 
 func TestGet(t *testing.T) {
 	loadCounts := make(map[string]int, len(db))
-	gee := NewGroup("scores", 2<<10, GetterFunc(
+	cronus := NewGroup("scores", 2<<10, GetterFunc(
 		func(key string) ([]byte, error) {
 			log.Println("[SlowDB] search key", key)
 			if v, ok := db[key]; ok {
@@ -40,15 +40,15 @@ func TestGet(t *testing.T) {
 		}))
 
 	for k, v := range db {
-		if view, err := gee.Get(k); err != nil || view.String() != v {
+		if view, err := cronus.Get(k); err != nil || view.String() != v {
 			t.Fatal("failed to get value of Tom")
 		} // load from callback function
-		if _, err := gee.Get(k); err != nil || loadCounts[k] > 1 {
+		if _, err := cronus.Get(k); err != nil || loadCounts[k] > 1 {
 			t.Fatalf("cache %s miss", k)
 		} // cache hit
 	}
 
-	if view, err := gee.Get("unknown"); err == nil {
+	if view, err := cronus.Get("unknown"); err == nil {
 		t.Fatalf("the value of unknow should be empty, but %s got", view)
 	}
 }

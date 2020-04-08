@@ -1,7 +1,7 @@
-package cronuscache
+package src
 
 import (
-	"cronuscache/lru"
+	"cronuscache/src/lru"
 	"sync"
 )
 
