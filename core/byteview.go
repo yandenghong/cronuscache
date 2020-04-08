@@ -1,4 +1,4 @@
-package src
+package core
 
 type ByteView struct {
 	b []byte

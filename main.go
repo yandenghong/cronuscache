@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"cronuscache/src"
+	"cronuscache/core"
 )
 
 var db = map[string]string{
