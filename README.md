@@ -7,7 +7,7 @@ A distributed key-value cache in memory.
 - [x] Local concurrent reads and writes  
 - [x] Group namespace
 - [x] Http server
-- [ ] Consistent hashing
+- [x] Consistent hashing
 - [ ] Distributed node
 - [ ] Security strategy
 - [ ] Protobuf-based inter-node communication
