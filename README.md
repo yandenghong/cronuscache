@@ -8,6 +8,6 @@ A distributed key-value cache in memory.
 - [x] Group namespace
 - [x] Http server
 - [x] Consistent hashing
-- [ ] Distributed node
+- [x] Distributed node
 - [ ] Security strategy
 - [ ] Protobuf-based inter-node communication
