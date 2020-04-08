@@ -6,7 +6,7 @@ A distributed key-value cache in memory.
 - [x] Least recently used cache elimination strategy
 - [x] Local concurrent reads and writes  
 - [x] Group namespace
-- [ ] Http server
+- [x] Http server
 - [ ] Consistent hashing
 - [ ] Distributed node
 - [ ] Security strategy
