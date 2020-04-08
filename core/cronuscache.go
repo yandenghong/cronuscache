@@ -21,6 +21,7 @@ type Group struct {
 	name      string
 	getter    Getter
 	mainCache cache
+	nodes     NodeSelector
 }
 
 var (
@@ -68,6 +69,14 @@ func (g *Group) Get(key string) (ByteView, error) {
 }
 
 func (g *Group) load(key string) (value ByteView, err error) {
+	if g.nodes != nil {
+		if node, ok := g.nodes.SelectNode(key); ok {
+			if value, err = g.getFromNode(node, key); err == nil {
+				return value, nil
+			}
+			log.Println("[CronusCache] Failed to get from node", err)
+		}
+	}
 	return g.getLocally(key)
 }
 
@@ -84,4 +93,20 @@ func (g *Group) getLocally(key string) (ByteView, error) {
 
 func (g *Group) populateCache(key string, value ByteView) {
 	g.mainCache.add(key, value)
+}
+
+// RegisterNodes registers a NodeSelector for choosing remote node
+func (g *Group) RegisterNodes(nodes NodeSelector) {
+	if g.nodes != nil {
+		panic("RegisterNodes called more than once")
+	}
+	g.nodes = nodes
+}
+
+func (g *Group) getFromNode(node NodeGetter, key string) (ByteView, error) {
+	bytes, err := node.Get(g.name, key)
+	if err != nil {
+		return ByteView{}, err
+	}
+	return ByteView{b: bytes}, nil
 }

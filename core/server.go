@@ -3,17 +3,26 @@ package core
 import (
 	"fmt"
 	"log"
+	"sync"
 	"net/http"
 	"strings"
+	"io/ioutil"
+	"net/url"
+	"cronuscache/core/consistenthash"
 )
 
-const defaultBasePath = "/_cronuscache/"
-
-// HTTPPool implements PeerPicker for a pool of HTTP peers.
+const (
+	defaultBasePath = "/_cronuscache/"
+	defaultReplicas = 50
+)
+// HTTPPool implements NodeSelector for a pool of HTTP nodes.
 type HTTPPool struct {
-	// this peer's base URL, e.g. "https://example.net:8000"
+	// this node's base URL, e.g. "https://example.net:8000"
 	self     string
 	basePath string
+	mu          sync.Mutex // guards nodes and httpGetters
+	nodes       *consistenthash.Map
+	httpGetters map[string]*httpGetter // keyed by e.g. "http://10.0.0.1:8888"
 }
 
 // NewHTTPPool initializes an HTTP pool of peers.
@@ -60,3 +69,59 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(view.ByteSlice())
 }
+
+type httpGetter struct {
+	baseURL string // url of remote node
+}
+
+func (h *httpGetter) Get(group string, key string) ([]byte, error) {
+	u := fmt.Sprintf(
+		"%v%v/%v",
+		h.baseURL,
+		url.QueryEscape(group),
+		url.QueryEscape(key),
+	)
+	res, err := http.Get(u)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("server returned: %v", res.Status)
+	}
+
+	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response body: %v", err)
+	}
+
+	return bytes, nil
+}
+
+var _ NodeGetter = (*httpGetter)(nil)
+
+// Set updates the pool's list of nodes.
+func (p *HTTPPool) Set(nodes ...string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.nodes = consistenthash.New(defaultReplicas, nil)
+	p.nodes.Add(nodes...)
+	p.httpGetters = make(map[string]*httpGetter, len(nodes))
+	for _, node := range nodes {
+		p.httpGetters[node] = &httpGetter{baseURL: node + p.basePath}
+	}
+}
+
+// SelectNode picks a node according to key
+func (p *HTTPPool) SelectNode(key string) (NodeGetter, bool) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if node := p.nodes.Get(key); node != "" && node != p.self {
+		p.Log("Select node %s", node)
+		return p.httpGetters[node], true
+	}
+	return nil, false
+}
+
+var _ NodeSelector = (*HTTPPool)(nil)
