@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"cronuscache/core/singlereq"
 )
 
 type Getter interface {
@@ -22,6 +23,9 @@ type Group struct {
 	getter    Getter
 	mainCache cache
 	nodes     NodeSelector
+	// use singlereq.Group to make sure that
+	// each key is only fetched once
+	loader *singlereq.Group
 }
 
 var (
@@ -40,6 +44,7 @@ func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
 		name:      name,
 		getter:    getter,
 		mainCache: cache{cacheBytes: cacheBytes},
+		loader:    &singlereq.Group{},
 	}
 	groups[name] = g
 	return g
@@ -69,6 +74,9 @@ func (g *Group) Get(key string) (ByteView, error) {
 }
 
 func (g *Group) load(key string) (value ByteView, err error) {
+	// each key is only fetched once (either locally or remotely)
+	// regardless of the number of concurrent reqs.
+	val, err := g.loader.Do(key, func() (interface{}, error) {
 	if g.nodes != nil {
 		if node, ok := g.nodes.SelectNode(key); ok {
 			if value, err = g.getFromNode(node, key); err == nil {
@@ -78,6 +86,12 @@ func (g *Group) load(key string) (value ByteView, err error) {
 		}
 	}
 	return g.getLocally(key)
+	})
+	if err != nil {
+		return val.(ByteView), nil
+	}
+	return
+	
 }
 
 func (g *Group) getLocally(key string) (ByteView, error) {

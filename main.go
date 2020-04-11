@@ -57,7 +57,7 @@ func startAPIServer(apiAddr string, g *core.Group) {
 func main() {
 	var port int
 	var api bool
-	flag.IntVar(&port, "port", 8100, "CronusCache server port")
+	flag.IntVar(&port, "port", 8309, "CronusCache server port")
 	flag.BoolVar(&api, "api", false, "Start a api server?")
 	flag.Parse()
 
