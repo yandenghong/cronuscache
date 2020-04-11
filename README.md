@@ -9,5 +9,5 @@ A distributed key-value cache in memory.
 - [x] Http server
 - [x] Consistent hashing
 - [x] Distributed node
-- [ ] Security strategy
+- [x] Security strategy
 - [ ] Protobuf-based inter-node communication
